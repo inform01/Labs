@@ -8,6 +8,21 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fstream>
+
+void getStringsFromTextFile(std::vector<std::string>& storage, std::ifstream&& textStream) {
+    std::string currentStringFromFile;
+    while(getline(textStream, currentStringFromFile)){
+        storage.push_back(currentStringFromFile);
+    }
+}
+
+void writeReceivedTextToFile(const char* outputText, std::ofstream outputStream) {
+    while(*outputText != '\0') {
+        outputStream << *outputText;
+        outputText++;
+    }
+}
 int mainServerFunc(int argc, char* argv[],int port) {
     std::string prefix = "SERVER>";  //just for convenience
     //........................................................................
@@ -36,7 +51,7 @@ int mainServerFunc(int argc, char* argv[],int port) {
 
     //............................................................................................
     //^prepared to connections on our port^
-    std::cout << prefix + "Server listening connections from clients! Current connection port:" << port << '\n';
+    std::cout << "Server listening connections from clients! Current connection port:" << port << '\n';
 
     socklen_t clilen = sizeof(client_address);
 
@@ -53,17 +68,32 @@ int mainServerFunc(int argc, char* argv[],int port) {
     }
     clientsCount++;
 
-    std::cout << prefix + "Connection accepted! Client connected to server!\n";
-    int valread = read(clientSocket, buffer, 4096);
+    std::cout << "Connection accepted! Client connected to server!\n";
 
-    std::cout << prefix + "Received from client: " << buffer << '\n';
+    std::ifstream serverTextFile("/home/oleksandr/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
 
-    std::string answerFromServer = "5!\n";
+    std::cout << "\nRead from text file:\n";
 
-    send(clientSocket, answerFromServer.c_str(), answerFromServer.length() + 1, 0);
+    std::vector<std::string> stringsStorage;
+    getStringsFromTextFile(stringsStorage, std::move(serverTextFile));
 
-    std::cout << prefix + "Message to client sent\n\n";
-    //   }
+    std::string resString;
+    for(const auto& it: stringsStorage) {
+        std::cout << it << '\n';
+        resString+=it+'\n';
+    }
+    resString+='\0';
+    send(clientSocket, resString.c_str(), resString.length() + 1, 0);
+
+
+    read(clientSocket, buffer, 4096);
+
+    std::ofstream writeTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
+    writeReceivedTextToFile(buffer, std::move(writeTextRedactor));
+
+
+    std::cout << "Received changed text from client:\n" << buffer << '\n';
+
     close(serverSocket);
     return 0;
 
