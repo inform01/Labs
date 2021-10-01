@@ -10,11 +10,12 @@
 #include <netinet/in.h>
 #include <fstream>
 
-void getStringsFromTextFile(std::vector<std::string>& storage, std::ifstream&& textStream) {
-    std::string currentStringFromFile;
-    while(getline(textStream, currentStringFromFile)){
-        storage.push_back(currentStringFromFile);
+void readStringsFromTextFile(std::string& result, std::ifstream&& inputStream) {
+    std::string currentString;
+    while(inputStream >> currentString) {
+        result+=currentString+'\n';
     }
+    result+='\0';
 }
 
 void writeReceivedTextToFile(const char* outputText, std::ofstream outputStream) {
@@ -71,23 +72,19 @@ int mainServerFunc(int argc, char* argv[],int port) {
     std::cout << "Connection accepted! Client connected to server!\n";
 
     std::ifstream serverTextFile("/home/oleksandr/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
-
     std::cout << "\nRead from text file:\n";
+    std::string stringsStorage;
 
-    std::vector<std::string> stringsStorage;
-    getStringsFromTextFile(stringsStorage, std::move(serverTextFile));
+    //get all strings from textStorage.txt file and pass them to vector
+    readStringsFromTextFile(stringsStorage, std::move(serverTextFile));
 
-    std::string resString;
-    for(const auto& it: stringsStorage) {
-        std::cout << it << '\n';
-        resString+=it+'\n';
-    }
-    resString+='\0';
-    send(clientSocket, resString.c_str(), resString.length() + 1, 0);
+    //send source text to client(for editing)
+    send(clientSocket, stringsStorage.c_str(), stringsStorage.length() + 1, 0);
 
-
+    //read edited text from client
     read(clientSocket, buffer, 4096);
 
+    //write edited text to file
     std::ofstream writeTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
     writeReceivedTextToFile(buffer, std::move(writeTextRedactor));
 

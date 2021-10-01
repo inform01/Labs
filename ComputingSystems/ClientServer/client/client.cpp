@@ -53,22 +53,25 @@ int mainClientFunc(int argc, char* argv[],int port) {
         return -1;
     }
 
-
+    //read 5+ strings from server storage
     read(sock, textFromServer, 1024);
 
     std::cout << "You received text from server. Check textRedactor.txt file to change it, if you want\n"
                  "Type \"finish\" if you finish editing a file\nAll changes will send to server storage\n";
 
-
+    //write all text to textRedactor.txt file(for convenient editing)
     std::ofstream writeTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
     writeReceivedTextToFile(textFromServer, std::move(writeTextRedactor));
 
+    //waiting when client finish file editing
     waitFinishWord();
 
+    //read edited string to editedTextString variable
     std::ifstream readTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
     std::string editedTextString;
     readEditedTextFromFile(editedTextString, std::move(readTextRedactor));
 
+    //send edited buffer back to server storage
     send(sock , editedTextString.c_str(),  editedTextString.length() + 1, 0 );
 
     return 0;
