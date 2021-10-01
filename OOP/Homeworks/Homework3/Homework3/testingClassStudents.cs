@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System;
 namespace Task2
 {
-    static public class testingClass
+    static public class testingClassStudents
     {
-        static public void testingFunction() {
+        static public void testingFunctionStudents() {
             
             var group = new Group("K27");
             
