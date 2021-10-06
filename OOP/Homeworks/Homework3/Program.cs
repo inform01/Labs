@@ -4,10 +4,10 @@ namespace Task3
     
     internal class ProgramTask3
     {
-         public static void Main()
-         {
-             testingClassConverter.testingFunctionConverter();
-         }
+        // public static void Main()
+        // {
+       //      testingClassConverter.testingFunctionConverter();
+     //  }
     }
 }
 namespace Task2
@@ -16,9 +16,9 @@ namespace Task2
     {
         public const string PathToFile = "/home/oleksandr/Labs/OOP/Homeworks/Homework3/students.txt";
 
-       // public static void Main()
-       // {
-       //     testingClassStudents.testingFunctionStudents();
-       // }
+        public static void Main()
+       {
+            testingClassStudents.testingFunctionStudents();
+        }
     }
 }

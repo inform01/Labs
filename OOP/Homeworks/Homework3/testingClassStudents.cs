@@ -20,7 +20,7 @@ namespace Task2
             //place all students to group
             for (int i = 0; i < studentsList.Count; ++i)
             {
-                var currentStudent = new GoodStudent(studentsList[i]);
+                var currentStudent = new BadStudent(studentsList[i]);
                 if (i % 3 == 0)
                 {
                     currentStudent.Relax();

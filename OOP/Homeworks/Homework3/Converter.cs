@@ -13,11 +13,13 @@ namespace Task3
 
         public double ConvertToDollars(double grivnas)
         {
+			if(m_usd == 0) return 0.0;
             return grivnas / m_usd;
         }
         
         public double ConvertToEuros(double grivnas)
         {
+			if(m_eur == 0) return 0.0;
             return grivnas / m_eur;
         }
         

@@ -53,6 +53,19 @@ int mainClientFunc(int argc, char* argv[],int port) {
         return -1;
     }
 
+    std::cout << "Hi! Please, enter the protocol request:\n"
+                 "Request string example:\n"
+                 "| GET | Who | \n"
+                 "(GET - header used for get text from the server, Who - command for see project info)\n";
+    // | GET | Who |
+    std::string ProtocolRequest;/*= "GET Who";*/
+
+    std::cin.ignore();
+    getline(std::cin, ProtocolRequest);
+    std::cout << ProtocolRequest << '\n';
+    //send start info to server(header GET(get text file) and command Who))
+    send(sock, ProtocolRequest.c_str(), ProtocolRequest.length() + 1, 0);
+
     //read 5+ strings from server storage
     read(sock, textFromServer, 1024);
 

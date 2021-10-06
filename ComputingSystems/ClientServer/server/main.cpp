@@ -1,7 +1,11 @@
 #include"server.h"
+#include<iostream>
 
 int main(int argc, char* argv[]) {
 
-    return mainServerFunc(argc,argv, 8080);
+    int port;
+    std::cout << "Enter port number for server:\n";
+    std::cin >> port;
+    return mainServerFunc(argc,argv, port);
 
 }
