@@ -2,6 +2,9 @@ build/
 cmake-build-debug/
 .vscode/
 .idea/
+*.csproj
+Properties
+*.sln
 oop_homework3-2021-10-04_17.47.46
 oop_homework3_2-2021-10-04_17.49.04
 build*
