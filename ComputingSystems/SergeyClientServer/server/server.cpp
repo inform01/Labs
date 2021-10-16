@@ -82,63 +82,48 @@ int mainServerFunc(int argc, char* argv[],int port) {
 
     socklen_t clilen = sizeof(client_address);
 
-    bool needStop = false;
     int clientsCount=0;
+    int count = 0;
+    const int MAX_COUNT = 12; // max amount of server moves
+    char gameField[] = ".....\n.....\n.....\n.....\n.....";
 
-    while(!needStop) {
-        char buffer[1024] = {0};
+    int clientSocket = accept(serverSocket, (struct sockaddr *) &serv_addr, &clilen);
+    if (clientSocket < 0) {
+        std::cout << prefix + "acceptance error:(\n";
+        return -2;
+    }
 
-        int clientSocket = accept(serverSocket, (struct sockaddr *) &serv_addr, &clilen);
-        if (clientSocket < 0) {
-            std::cout << prefix + "acceptance error:(\n";
-            return -2;
-        }
-        clientsCount++;
+    std::cout << "Connection accepted! Client connected to server!\n";
 
-        std::cout << "Connection accepted! Client connected to server!\n";
+    //read protocol request
+    char bufferProtocol[1024] = {0};
+    read(clientSocket, bufferProtocol, 4096);
 
+    addToLog(bufferProtocol);
 
-        //read protocol request
-        char bufferProtocol[1024] = {0};
-        read(clientSocket, bufferProtocol, 4096);
-
-        addToLog(bufferProtocol);
-
-        std::vector<std::string> parsedProtocolRequest = parseProtocolRequest(bufferProtocol, strlen(bufferProtocol));
-        std::cout << "Parsed vector:\n";
-        for(const auto& it: parsedProtocolRequest) {
-            std::cout << it << " ";
-        }
-        std::cout << '\n';
-
-        if(parsedProtocolRequest[0] != "GET") {
-            std::cout << "Header must be specified!(GET for this variant)\n";
-            return 0;
-        }
-        if(parsedProtocolRequest[1] == "Who") {
-            std::cout << "project information:\n";
-            std::cout << authorName << '\n' << projectInfo << '\n';
-        }
-        std::ifstream serverTextFile("/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
-        std::cout << "\nRead from text file:\n";
-        std::string stringsStorage;
-
-        //get all strings from textStorage.txt file and pass them to vector
-        readStringsFromTextFile(stringsStorage, std::move(serverTextFile));
-
-        //send source text to client(for editing)
-        send(clientSocket, stringsStorage.c_str(), stringsStorage.length() + 1, 0);
-
-        //read edited text from client
-        read(clientSocket, buffer, 4096);
-
-        //write edited text to file
-        std::ofstream writeTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
-        writeReceivedTextToFile(buffer, std::move(writeTextRedactor));
-        std::cout << "Received changed text from client:\n" << buffer << '\n';
+    if(bufferProtocol[0] != 'P') {
+        std::cout << "Incorrect header!\n";
+        return 0;
     }
 
 
+    //start game field to client
+    send(clientSocket, gameField, strlen(gameField), 0);
+
+    while(count++ != MAX_COUNT) {
+        //read edited text from client
+        read(clientSocket, gameField, 4096);
+
+
+        int cellForMove;
+        std::cout << "Your move! Enter cell you want move to!\n";
+        std::cout << gameField << '\n';
+        std::cin >> cellForMove;
+
+        gameField[cellForMove] = 'O';
+
+        send(clientSocket, gameField, strlen(gameField), 0);
+    }
 
     close(serverSocket);
     return 0;

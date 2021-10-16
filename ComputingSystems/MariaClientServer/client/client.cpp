@@ -36,15 +36,18 @@ int mainClientFunc(int argc, char* argv[],int port) {
     read(sock, passwordSize, 1024);
 
     std::cout << "Password size is " << passwordSize << '\n';
+    std::cout << "Please, try to guess server password:\n";
     while(true) {
-        std::cout << "Please, try to guess server password:\n";
         std::string password;
         std::cin >> password;
         send(sock, password.c_str(), password.length() + 1, 0);
 
         //read result strings from server storage
         read(sock, textFromServer, 1024);
-        if((std::string)textFromServer != "Try again:(") break;
+        std::cout << textFromServer << '\n';
+        if((std::string)textFromServer != "Try again:(") {
+            break;
+        }
     }
 
 

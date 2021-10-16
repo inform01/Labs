@@ -73,14 +73,14 @@ int mainClientFunc(int argc, char* argv[],int port) {
                  "Type \"finish\" if you finish editing a file\nAll changes will send to server storage\n";
 
     //write all text to textRedactor.txt file(for convenient editing)
-    std::ofstream writeTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
+    std::ofstream writeTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
     writeReceivedTextToFile(textFromServer, std::move(writeTextRedactor));
 
     //waiting when client finish file editing
     waitFinishWord();
 
     //read edited string to editedTextString variable
-    std::ifstream readTextRedactor("/home/oleksandr/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
+    std::ifstream readTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
     std::string editedTextString;
     readEditedTextFromFile(editedTextString, std::move(readTextRedactor));
 
