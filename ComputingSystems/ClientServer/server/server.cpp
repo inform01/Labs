@@ -122,6 +122,7 @@ int mainServerFunc(int argc, char* argv[],int port) {
             std::cout << "project information:\n";
             std::cout << authorName << '\n' << projectInfo << '\n';
         }
+
         
         //At the beginning we keep all strings in textStorage file
         std::ifstream serverTextFile(pathToServerProject + "textStorage.txt");
