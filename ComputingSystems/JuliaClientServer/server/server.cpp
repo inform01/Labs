@@ -9,14 +9,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fstream>
-#include <chrono>
-#include<ctime>
+
 //Info for "Who" command
 const char authorName[] = "Oleksandr Yemets";
 const char projectInfo[] = "Variant: 1\n Text redactor";
 
-
-const std::string pathToServerProject = "/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/";
 void readStringsFromTextFile(std::string& result, std::ifstream&& inputStream) {
     std::string currentString;
     while(inputStream >> currentString) {
@@ -32,6 +29,8 @@ void writeReceivedTextToFile(const char* outputText, std::ofstream outputStream)
     }
 }
 std::vector<std::string> parseProtocolRequest(const char* protocolRequest, int size) {
+
+    std::cout << size << "\n";
     std::vector<std::string> result;
     std::string currentWord;
     for(int i = 0; i < size; ++i) {
@@ -46,12 +45,9 @@ std::vector<std::string> parseProtocolRequest(const char* protocolRequest, int s
 }
 void addToLog(char* line) {
     std::ofstream fileOut;
-    const std::string fileName = pathToServerProject + "Connectionlog.txt";//"/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/ConnectionsLog.txt";
+    const std::string fileName = "/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/ConnectionsLog.txt";
     fileOut.open(fileName, std::ios::app);
-
-    auto givemetime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-    fileOut << '\n' << line << " " << ctime(&givemetime);
+    fileOut << '\n' << line;
 }
 int mainServerFunc(int argc, char* argv[],int port) {
 
@@ -95,7 +91,7 @@ int mainServerFunc(int argc, char* argv[],int port) {
         int clientSocket = accept(serverSocket, (struct sockaddr *) &serv_addr, &clilen);
         if (clientSocket < 0) {
             std::cout << prefix + "acceptance error:(\n";
-            continue;
+            return -2;
         }
         clientsCount++;
 
@@ -108,37 +104,38 @@ int mainServerFunc(int argc, char* argv[],int port) {
 
         addToLog(bufferProtocol);
 
-        //all words sent by client we keep in this vector
         std::vector<std::string> parsedProtocolRequest = parseProtocolRequest(bufferProtocol, strlen(bufferProtocol));
+        std::cout << "Parsed vector:\n";
+        for(const auto& it: parsedProtocolRequest) {
+            std::cout << it << " ";
+        }
+        std::cout << '\n';
 
-        //check is first word is correct header
         if(parsedProtocolRequest[0] != "GET") {
             std::cout << "Header must be specified!(GET for this variant)\n";
             return 0;
         }
-
-        //check is client want to know project info
         if(parsedProtocolRequest[1] == "Who") {
             std::cout << "project information:\n";
             std::cout << authorName << '\n' << projectInfo << '\n';
         }
-        
-        //At the beginning we keep all strings in textStorage file
-        std::ifstream serverTextFile(pathToServerProject + "textStorage.txt");
+        std::ifstream serverTextFile("/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
+        std::cout << "\nRead from text file:\n";
         std::string stringsStorage;
 
-        //get all strings from textStorage.txt file and pass them to string
+        //get all strings from textStorage.txt file and pass them to vector
         readStringsFromTextFile(stringsStorage, std::move(serverTextFile));
 
         //send source text to client(for editing)
         send(clientSocket, stringsStorage.c_str(), stringsStorage.length() + 1, 0);
-        std::cout << "String from textStorage.txt file was sent to client\n";
+
         //read edited text from client
         read(clientSocket, buffer, 4096);
 
         //write edited text to file
-        std::ofstream writeTextRedactor(pathToServerProject + "textStorage.txt");
+        std::ofstream writeTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/server/textStorage.txt");
         writeReceivedTextToFile(buffer, std::move(writeTextRedactor));
+        std::cout << "Received changed text from client:\n" << buffer << '\n';
     }
 
 
