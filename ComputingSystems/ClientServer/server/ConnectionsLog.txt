@@ -1,3 +1,6 @@
 | GET | Who | Mon Oct 18 13:40:04 2021
 
 
+
+K Name1 int 10
+K aboba int 15
