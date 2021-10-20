@@ -62,7 +62,7 @@ int mainClientFunc(int argc, char* argv[],int port) {
 
     std::cin.ignore();
     getline(std::cin, ProtocolRequest);
-    std::cout << ProtocolRequest << '\n';
+    //std::cout << ProtocolRequest << '\n';
     //send start info to server(header GET(get text file) and command Who))
     send(sock, ProtocolRequest.c_str(), ProtocolRequest.length() + 1, 0);
 

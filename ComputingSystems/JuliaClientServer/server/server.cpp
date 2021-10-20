@@ -22,13 +22,13 @@ struct Object {
 std::ostream& operator<<(std::ostream& out, const Object& obj) {
     std::cout << "Object name: " << obj.name << '\n';
     std::cout << "Object type: " << obj.type << '\n';
-    std::cout << "Object value: " << obj.value << '\n';
+    std::cout << "Object value: " << obj.value;
     return out;
 }
 
 std::vector<std::string> cStringToSTDString(const char* protocolRequest, int size) {
 
-    std::cout << size << "\n";
+   // std::cout << size << "\n";
     std::vector<std::string> result;
     std::string currentWord;
     for(int i = 0; i < size; ++i) {
@@ -84,26 +84,31 @@ int mainServerFunc(int argc, char* argv[],int port) {
     bool needStop = false;
     int clientsCount=0;
 
+
+    int clientSocket = accept(serverSocket, (struct sockaddr *) &serv_addr, &clilen);
+    if (clientSocket < 0) {
+        std::cout <<  "acceptance error:(\n";
+        return -2;
+    }
+
+    std::cout << "Connection accepted! Client connected to server!\n";
+
+
     while(!needStop) {
-        char buffer[1024] = {0};
 
-        int clientSocket = accept(serverSocket, (struct sockaddr *) &serv_addr, &clilen);
-        if (clientSocket < 0) {
-            std::cout <<  "acceptance error:(\n";
-            return -2;
-        }
+        char buffer[1024];
 
-        std::cout << "Connection accepted! Client connected to server!\n";
 
         //read protocol request
         char bufferProtocol[1024] = {0};
         read(clientSocket, bufferProtocol, 4096);
 
-        addToLog(bufferProtocol);
-
+       // addToLog(bufferProtocol);
+        std::cout << bufferProtocol << '\n';
         //header for keeping info
         if(bufferProtocol[0] == 'K') {
             //receivedObjectaName = {K, Name, type, value}
+            std::cout << "in K\n";
             std::vector<std::string> receivedObject = cStringToSTDString(bufferProtocol, strlen(bufferProtocol));
 
             std::string objectName = receivedObject[1];
@@ -122,30 +127,18 @@ int mainServerFunc(int argc, char* argv[],int port) {
             auto findIterator = std::find_if(serverStorage.begin(), serverStorage.end(),
                                              [objectName](const Object& obj) {return obj.name == objectName;});
 
+
+            std::string objectInString = "There is no suck object on the server:(";
+
             if(findIterator != serverStorage.end()) {
-                std::string objectInString = findIterator->name + findIterator->type + std::to_string(findIterator->value);
-                send(clientSocket, objectInString.c_str(), objectInString.length() + 1, 0);
+                objectInString = findIterator->name + " " + findIterator->type + " " + std::to_string(findIterator->value);
             }
+            send(clientSocket, objectInString.c_str(), objectInString.length() + 1, 0);
         }
 
-//        if(parsedProtocolRequest[0] != "GET") {
-//            std::cout << "Header must be specified!(GET for this variant)\n";
-//            return 0;
-//        }
-//        if(parsedProtocolRequest[1] == "Who") {
-//            std::cout << "project information:\n";
-//            std::cout << authorName << '\n' << projectInfo << '\n';
-//        }
-
-
-        //send source text to client(for editing)
-       // send(clientSocket, stringsStorage.c_str(), stringsStorage.length() + 1, 0);
-
-        //read edited text from client
-        read(clientSocket, buffer, 4096);
-
         //write edited text to file
-
+        std::cout << "Server storage updated:\n";
+        for(const auto& it: serverStorage) std::cout << it << "\n\n";
     }
 
 

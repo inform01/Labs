@@ -54,39 +54,25 @@ int mainClientFunc(int argc, char* argv[],int port) {
     }
 
     std::cout << "Hi! Please, enter the protocol request:\n"
-                 "Request string example:\n"
-                 "| GET | Who | \n"
-                 "(GET - header used for get text from the server, Who - command for see project info)\n";
-    // | GET | Who |
+                 "Request string templates:\n"
+                 "K Name int 5 - for keeping this object on server \n"
+                 "G Name - for getting this object(with Name name) from server\n"
+                 "Enter \"finish\" keyword to finish\n";
+
     std::string ProtocolRequest;/*= "GET Who";*/
+    while(true) {
+        //std::cin.ignore();
+        getline(std::cin, ProtocolRequest);
 
-    std::cin.ignore();
-    getline(std::cin, ProtocolRequest);
-    std::cout << ProtocolRequest << '\n';
-    //send start info to server(header GET(get text file) and command Who))
-    send(sock, ProtocolRequest.c_str(), ProtocolRequest.length() + 1, 0);
+        send(sock, ProtocolRequest.c_str(), ProtocolRequest.length() + 1, 0);
 
-    //read 5+ strings from server storage
-    read(sock, textFromServer, 1024);
-
-    std::cout << "You received text from server. Check textRedactor.txt file to change it, if you want\n"
-                 "Type \"finish\" if you finish editing a file\nAll changes will send to server storage\n";
-
-    //write all text to textRedactor.txt file(for convenient editing)
-    std::ofstream writeTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
-    writeReceivedTextToFile(textFromServer, std::move(writeTextRedactor));
-
-    //waiting when client finish file editing
-    waitFinishWord();
-
-    //read edited string to editedTextString variable
-    std::ifstream readTextRedactor("/home/oyemets/University/Labs/ComputingSystems/ClientServer/client/textRedactor.txt");
-    std::string editedTextString;
-    readEditedTextFromFile(editedTextString, std::move(readTextRedactor));
-
-    //send edited buffer back to server storage
-    send(sock , editedTextString.c_str(),  editedTextString.length() + 1, 0 );
-
+        char buffer[1024];
+        if(ProtocolRequest[0] == 'G') {
+            read(sock, buffer, 1024);
+            std::cout << "\nReceived from server: \n" << buffer << '\n';
+        }
+        if(ProtocolRequest == "finish") break;
+    }
     return 0;
 
 }

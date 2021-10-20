@@ -15,35 +15,6 @@
 const char authorName[] = "Maria Kardash";
 const char projectInfo[] = "Variant: 1\n Guess the passport";
 
-void readStringsFromTextFile(std::string& result, std::ifstream&& inputStream) {
-    std::string currentString;
-    while(inputStream >> currentString) {
-        result+=currentString+'\n';
-    }
-    result+='\0';
-}
-
-void writeReceivedTextToFile(const char* outputText, std::ofstream outputStream) {
-    while(*outputText != '\0') {
-        outputStream << *outputText;
-        outputText++;
-    }
-}
-std::vector<std::string> parseProtocolRequest(const char* protocolRequest, int size) {
-
-    std::cout << size << "\n";
-    std::vector<std::string> result;
-    std::string currentWord;
-    for(int i = 0; i < size; ++i) {
-        if(*(protocolRequest + i)  == ' ') {
-            if(currentWord != "|") result.push_back(currentWord);
-            currentWord = "";
-        }
-        else if(currentWord != "|") currentWord+=*(protocolRequest + i);
-    }
-    result.push_back(currentWord);
-    return result;
-}
 
 std::string generateRandomPassword() {
     srand(std::time(nullptr));
@@ -121,7 +92,7 @@ int startServer(int argc, char* argv[],int port) {
             // read password
             char buffer[1024] = {0};
             read(clientSocket, buffer, 4096);
-
+            std::cout << buffer << '\n';
             //add currenrt password to log file
             addToLog(buffer);
 
