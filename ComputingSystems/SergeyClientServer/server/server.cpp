@@ -11,8 +11,8 @@
 #include <fstream>
 
 //Info for "Who" command
-const char authorName[] = "Oleksandr Yemets";
-const char projectInfo[] = "Variant: 1\n Text redactor";
+const char authorName[] = "Serhii Oliinyk";
+const char projectInfo[] = "Variant: 12";
 
 void readStringsFromTextFile(std::string& result, std::ifstream&& inputStream) {
     std::string currentString;
